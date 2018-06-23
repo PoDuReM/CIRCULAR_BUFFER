@@ -42,9 +42,11 @@ public:
 
         U *operator->() const;
 
-        friend bool operator==(const Iterator &lhs, const Iterator &rhs);
+        friend bool operator==(Iterator const &lhs, Iterator const &rhs);
 
-        friend bool operator!=(const Iterator &lhs, const Iterator &rhs);
+        friend bool operator!=(Iterator const &lhs, Iterator const &rhs);
+
+        friend ptrdiff_t operator-(Iterator const &lhs, Iterator const &rhs);
 
     private:
         explicit Iterator(U *, size_t, size_t, size_t);
@@ -57,6 +59,23 @@ public:
     using const_iterator = Iterator<const T>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+    iterator begin();
+
+    const_iterator begin() const;
+
+    iterator end();
+
+    const_iterator end() const;
+
+    reverse_iterator rbegin();
+
+    const_reverse_iterator rbegin() const;
+
+    reverse_iterator rend();
+
+    const_reverse_iterator rend() const;
+
 private:
     T *deque;
     size_t size_, start_, end_, capacity;
@@ -145,9 +164,75 @@ CircularBuffer::Iterator CircularBuffer<T>::Iterator<U>::operator--(int) {
 
 template<typename T>
 template<typename U>
-CircularBuffer::Iterator CircularBuffer<T>::Iterator<U>::operator+(ptrdiff_t) {
-    Iterator tmp(ptr_,)
-    return tmp;
+CircularBuffer::Iterator CircularBuffer<T>::Iterator<U>::operator+(ptrdiff_t k) {
+    Iterator tmp(ptr_, index, beg, capacity);
+    return tmp += k;
+}
+
+template<typename T>
+template<typename U>
+CircularBuffer::Iterator CircularBuffer<T>::Iterator<U>::operator-(ptrdiff_t k) {
+    Iterator tmp(ptr_, index, beg, capacity);
+    return tmp -= k;
+}
+
+template<typename T>
+template<typename U>
+CircularBuffer::Iterator &CircularBuffer<T>::Iterator<U>::operator+=(ptrdiff_t k) {
+    index += k;
+    ptr_ += k;
+    if (index >= capacity) {
+        index -= capacity;
+        ptr_ -= capacity;
+    }
+    return *this;
+}
+
+template<typename T>
+template<typename U>
+CircularBuffer::Iterator &CircularBuffer<T>::Iterator<U>::operator-=(ptrdiff_t k) {
+    if (index < k) {
+        index += capacity;
+        ptr_ += capacity;
+    }
+    index -= k;
+    ptr_ -= k;
+    return *this;
+}
+
+template<typename T>
+template<typename U>
+U &CircularBuffer<T>::Iterator<U>::operator*() const {
+    return *ptr_;
+}
+
+template<typename T>
+template<typename U>
+U *CircularBuffer<T>::Iterator<U>::operator->() const {
+    return ptr_;
+}
+
+bool operator==(const CircularBuffer::Iterator &lhs, const CircularBuffer::Iterator &rhs) {
+    return lhs.ptr_ == rhs.ptr_;
+}
+
+bool operator!=(const CircularBuffer::Iterator &lhs, const CircularBuffer::Iterator &rhs) {
+    return lhs.ptr_ != rhs.ptr_;
+}
+
+template<typename T>
+template<typename U>
+CircularBuffer<T>::Iterator<U>::Iterator(U *ptr, size_t ind, size_t beg, size_t cap)
+        : ptr_(ptr), index(ind), beg(beg), capacity(cap) {}
+
+ptrdiff_t operator-(const CircularBuffer::Iterator &lhs, const CircularBuffer::Iterator &rhs) {
+    if ((lhs.index >= lhs.beg) ^ (rhs.index >= rhs.beg)) {
+        return lhs.index - rhs.index;
+    }
+    if (lhs.index < rhs.index) {
+        return lhs.index - rhs.index + lhs.capacity;
+    }
+    return lhs.index - rhs.index - lhs.capacity;
 }
 
 template<typename T>
@@ -325,6 +410,46 @@ void CircularBuffer<T>::clear() noexcept {
     }
     operator delete(deque);
     size_ = capacity = start_ = end_ = 0;
+}
+
+template<typename T>
+CircularBuffer::iterator CircularBuffer<T>::begin() {
+    return CircularBuffer::iterator(deque + start_, start_, start_, capacity);
+}
+
+template<typename T>
+CircularBuffer::const_iterator CircularBuffer<T>::begin() const {
+    return CircularBuffer::const_iterator(deque + start_, start_, start_, capacity);
+}
+
+template<typename T>
+CircularBuffer::reverse_iterator CircularBuffer<T>::rbegin() {
+    return CircularBuffer::reverse_iterator(end());
+}
+
+template<typename T>
+CircularBuffer::const_reverse_iterator CircularBuffer<T>::rbegin() const {
+    return CircularBuffer::const_reverse_iterator(end());
+}
+
+template<typename T>
+CircularBuffer::reverse_iterator CircularBuffer<T>::rend() {
+    return CircularBuffer::reverse_iterator(begin());
+}
+
+template<typename T>
+CircularBuffer::const_reverse_iterator CircularBuffer<T>::rend() const {
+    return CircularBuffer::const_reverse_iterator(begin());
+}
+
+template<typename T>
+CircularBuffer::iterator CircularBuffer<T>::end() {
+    return CircularBuffer::iterator(deque + end_, end_, start_, capacity);
+}
+
+template<typename T>
+CircularBuffer::const_iterator CircularBuffer<T>::end() const {
+    return CircularBuffer::iterator(deque + end_, end_, start_, capacity);
 }
 
 template<typename T>
