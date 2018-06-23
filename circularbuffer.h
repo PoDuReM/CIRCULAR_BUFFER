@@ -24,11 +24,11 @@ public:
 
         Iterator &operator++();
 
-        Iterator operator++(int);
+        const Iterator operator++(int);
 
         Iterator &operator--();
 
-        Iterator operator--(int);
+        const Iterator operator--(int);
 
         Iterator operator+(ptrdiff_t);
 
@@ -149,7 +149,7 @@ CircularBuffer::Iterator &CircularBuffer<T>::Iterator<U>::operator++() {
 
 template<typename T>
 template<typename U>
-CircularBuffer::Iterator CircularBuffer<T>::Iterator<U>::operator++(int) {
+const CircularBuffer::Iterator CircularBuffer<T>::Iterator<U>::operator++(int) {
     Iterator tmp(ptr_);
     *this += 1;
     return tmp;
@@ -164,7 +164,7 @@ CircularBuffer::Iterator &CircularBuffer<T>::Iterator<U>::operator--() {
 
 template<typename T>
 template<typename U>
-CircularBuffer::Iterator CircularBuffer<T>::Iterator<U>::operator--(int) {
+const CircularBuffer::Iterator CircularBuffer<T>::Iterator<U>::operator--(int) {
     Iterator tmp(ptr_);
     *this -= 1;
     return tmp;
