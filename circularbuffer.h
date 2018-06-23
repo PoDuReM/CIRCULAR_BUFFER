@@ -48,6 +48,14 @@ public:
 
         friend ptrdiff_t operator-(Iterator const &lhs, Iterator const &rhs);
 
+        friend bool operator<(Iterator const &lhs, Iterator const &rhs);
+
+        friend bool operator>=(Iterator const &lhs, Iterator const &rhs);
+
+        friend bool operator>(Iterator const &lhs, Iterator const &rhs);
+
+        friend bool operator<=(Iterator const &lhs, Iterator const &rhs);
+
     private:
         explicit Iterator(U *, size_t, size_t, size_t);
 
@@ -235,6 +243,25 @@ ptrdiff_t operator-(const CircularBuffer::Iterator &lhs, const CircularBuffer::I
     return lhs.index - rhs.index - lhs.capacity;
 }
 
+bool operator<(const CircularBuffer::Iterator &lhs, const CircularBuffer::Iterator &rhs) {
+    if ((lhs.index >= lhs.beg) ^ (rhs.index >= rhs.beg)) {
+        return lhs.index < rhs.index;
+    }
+    return lhs.index > rhs.index;
+}
+
+bool operator>=(const CircularBuffer::Iterator &lhs, const CircularBuffer::Iterator &rhs) {
+    return !(lhs < rhs);
+}
+
+bool operator>(const CircularBuffer::Iterator &lhs, const CircularBuffer::Iterator &rhs) {
+    return rhs < lhs;
+}
+
+bool operator<=(const CircularBuffer::Iterator &lhs, const CircularBuffer::Iterator &rhs) {
+    return !(lhs > rhs);
+}
+
 template<typename T>
 size_t CircularBuffer<T>::getPrev(size_t i) {
     if (i == 0) {
@@ -328,7 +355,7 @@ void CircularBuffer<T>::pop_back() noexcept {
 
 template<typename T>
 void CircularBuffer<T>::insert(CircularBuffer::iterator &pos_iter, const T &value) { //basic
-    size_t pos = pos_iter - begin();
+    size_t pos = (size_t)(pos_iter - begin());
     if (capacity == size_) {
         resize(capacity ? capacity * 2 : 1);
     }
@@ -348,7 +375,7 @@ void CircularBuffer<T>::insert(CircularBuffer::iterator &pos_iter, const T &valu
 
 template<typename T>
 void CircularBuffer<T>::erase(const CircularBuffer::iterator &pos_iter) { //basic
-    size_t pos = pos_iter - begin();
+    size_t pos = (size_t)(pos_iter - begin());
     if (pos < size_ - pos) {
         for (size_t i = pos; i > 0; --i) {
             operator[](i) = operator[](getPrev(i));
