@@ -113,9 +113,9 @@ public:
 
     void pop_back() noexcept;
 
-    void insert(iterator &pos_iter, T const &value); //basic
+    iterator insert(iterator pos_iter, T const &value); //basic
 
-    void erase(iterator const &pos_iter); //basic
+    iterator erase(iterator pos_iter); //basic
 
     T &operator[](size_t i) noexcept;
 
@@ -354,7 +354,7 @@ void CircularBuffer<T>::pop_back() noexcept {
 }
 
 template<typename T>
-void CircularBuffer<T>::insert(CircularBuffer::iterator &pos_iter, const T &value) { //basic
+CircularBuffer::iterator CircularBuffer<T>::insert(CircularBuffer::iterator pos_iter, const T &value) { //basic
     size_t pos = (size_t)(pos_iter - begin());
     if (capacity == size_) {
         resize(capacity ? capacity * 2 : 1);
@@ -371,10 +371,11 @@ void CircularBuffer<T>::insert(CircularBuffer::iterator &pos_iter, const T &valu
         }
     }
     operator[](pos) = value;
+    return CircularBuffer::iterator(deque + pos, pos, start_, capacity);
 }
 
 template<typename T>
-void CircularBuffer<T>::erase(const CircularBuffer::iterator &pos_iter) { //basic
+CircularBuffer::iterator CircularBuffer<T>::erase(CircularBuffer::iterator pos_iter) { //basic
     size_t pos = (size_t)(pos_iter - begin());
     if (pos < size_ - pos) {
         for (size_t i = pos; i > 0; --i) {
@@ -389,6 +390,7 @@ void CircularBuffer<T>::erase(const CircularBuffer::iterator &pos_iter) { //basi
         }
         pop_back();
     }
+    return CircularBuffer::iterator(deque + pos, pos, start_, capacity);
 }
 
 template<typename T>
