@@ -6,7 +6,7 @@
 #include <cstring>
 
 template<typename T>
-class CircularBuffer {
+class circular_buffer {
 public:
     template<typename U>
     class Iterator {
@@ -17,7 +17,7 @@ public:
         using reference = U &;
         using iterator_category = std::random_access_iterator_tag;
 
-        friend class CircularBuffer;
+        friend class circular_buffer;
 
         template<typename V>
         Iterator(const Iterator<V> &other, typename std::enable_if<std::is_same<U, const V>::value>::type * = nullptr) :
@@ -189,7 +189,7 @@ private:
     }
 
     void resize(size_t new_cap) {
-        CircularBuffer newBuf = CircularBuffer(new_cap);
+        circular_buffer newBuf = circular_buffer(new_cap);
         for (size_t i = 0; i < size_; ++i) {
             newBuf.push_back(operator[](i));
         }
@@ -197,26 +197,25 @@ private:
     }
 
 public:
-    explicit CircularBuffer(size_t n = 0) {
+    explicit circular_buffer(size_t n = 0) {
         deque = (T *) (malloc(sizeof(T) * n));
         capacity = n;
         start_ = end_ = size_ = 0;
     }
 
-    CircularBuffer(CircularBuffer<T> const &other) : CircularBuffer(other.capacity) {
-        //memcpy(deque, other.deque, sizeof(T) * capacity);
+    circular_buffer(circular_buffer<T> const &other) : circular_buffer(other.capacity) {
         std::copy(other.deque, other.deque + capacity, deque);
         start_ = other.start_;
         end_ = other.end_;
         size_ = other.size_;
     }
 
-    CircularBuffer<T> &operator=(CircularBuffer<T> const &other) {
-        CircularBuffer(other).swap(*this);
+    circular_buffer<T> &operator=(circular_buffer<T> &other) {
+        other.swap(*this);
         return *this;
     }
 
-    void swap(CircularBuffer<T> &other) {
+    void swap(circular_buffer<T> &other) {
         std::swap(deque, other.deque);
         std::swap(size_, other.size_);
         std::swap(start_, other.start_);
@@ -224,7 +223,7 @@ public:
         std::swap(capacity, other.capacity);
     }
 
-    ~CircularBuffer() {
+    ~circular_buffer() {
         for (size_t i = start_; i != end_; i = getNext(i)) {
             (deque + i)->~T();
         }
@@ -356,7 +355,7 @@ public:
 };
 
 template<typename T>
-void swap(CircularBuffer<T> &lhs, CircularBuffer<T> &rhs) noexcept {
+void swap(circular_buffer<T> &lhs, circular_buffer<T> &rhs) noexcept {
     lhs.swap(rhs);
 }
 
