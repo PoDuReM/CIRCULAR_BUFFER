@@ -198,7 +198,7 @@ private:
 
 public:
     explicit CircularBuffer(size_t n = 0) {
-        deque = new T[n];
+        deque = (T *) (malloc(sizeof(T) * n));
         capacity = n;
         start_ = end_ = size_ = 0;
     }
@@ -224,7 +224,7 @@ public:
     }
 
     ~CircularBuffer() {
-        delete[] deque;
+        free(deque);
     }
 
     void push_front(T const &value) { //strong
@@ -302,14 +302,16 @@ public:
     }
 
     T &operator[](size_t i) noexcept {
-        if (start_ + i >= capacity)
+        if (start_ + i >= capacity) {
             return deque[start_ + i - capacity];
+        }
         return deque[start_ + i];
     }
 
     T const &operator[](size_t i) const noexcept {
-        if (start_ + i >= capacity)
+        if (start_ + i >= capacity) {
             return deque[start_ + i - capacity];
+        }
         return deque[start_ + i];
     }
 
@@ -334,8 +336,8 @@ public:
     }
 
     void clear() noexcept {
-        delete[] deque;
-        deque = new T[0];
+        free(deque);
+        deque = (T *) malloc(0);
         size_ = capacity = start_ = end_ = 0;
     }
 
