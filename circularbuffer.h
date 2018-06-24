@@ -73,7 +73,7 @@ public:
             if (k < 0) {
                 return *this += -k;
             }
-            if (index < k) {
+            if (index < (size_t)k) {
                 index += capacity;
                 ptr_ += capacity;
             }
