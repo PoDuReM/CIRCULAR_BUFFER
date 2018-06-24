@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <algorithm>
 #include <cstring>
+#include <iostream>
 
 template<typename T>
 class circular_buffer {
@@ -21,7 +22,7 @@ public:
 
         template<typename V>
         Iterator(const Iterator<V> &other, typename std::enable_if<std::is_same<U, const V>::value>::type * = nullptr) :
-                ptr_(other.ptr_), beg(other.beg), index(other.index), capacity(other.capacity) {}
+                ptr_(other.ptr_), index(other.index), beg(other.beg), capacity(other.capacity) {}
 
         Iterator<U> &operator++() {
             *this += 1;
@@ -267,6 +268,9 @@ public:
 
     iterator insert(const_iterator pos_iter, T const &value) { //basic
         size_t pos = (size_t) (pos_iter - begin());
+        if (size_ == 0) {
+            push_back(value);
+        }
         if (capacity <= size_ + 1) {
             resize(capacity ? capacity * 2 : 2);
         }
