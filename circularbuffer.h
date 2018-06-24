@@ -224,7 +224,7 @@ public:
     }
 
     ~CircularBuffer() {
-        for (size_t i = 0; i < capacity; ++i) {
+        for (size_t i = start_; i != end_; i = getNext(i)) {
             (deque + i)->~T();
         }
         free(deque);
@@ -251,11 +251,13 @@ public:
     void pop_front() noexcept {
         start_ = getNext(start_);
         --size_;
+        (deque + getPrev(start_))->~T();
     }
 
     void pop_back() noexcept {
         end_ = getPrev(end_);
         --size_;
+        (deque + end_)->~T();
     }
 
     iterator insert(const_iterator pos_iter, T const &value) { //basic
@@ -305,14 +307,16 @@ public:
     }
 
     T &operator[](size_t i) noexcept {
-        if (start_ + i >= capacity)
+        if (start_ + i >= capacity) {
             return deque[start_ + i - capacity];
+        }
         return deque[start_ + i];
     }
 
     T const &operator[](size_t i) const noexcept {
-        if (start_ + i >= capacity)
+        if (start_ + i >= capacity) {
             return deque[start_ + i - capacity];
+        }
         return deque[start_ + i];
     }
 
@@ -337,11 +341,11 @@ public:
     }
 
     void clear() noexcept {
-        for (size_t i = 0; i < capacity; ++i) {
+        for (size_t i = start_; i != end_; i = getNext(i)) {
             (deque + i)->~T();
         }
         free(deque);
-        deque = (T *) malloc(0);
+        deque = nullptr;
         size_ = capacity = start_ = end_ = 0;
     }
 
