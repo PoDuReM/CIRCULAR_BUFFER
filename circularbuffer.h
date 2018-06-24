@@ -234,7 +234,7 @@ public:
         if (capacity <= size_ + 1) {
             resize(capacity ? capacity * 2 : 2);
         }
-        deque[getPrev(start_)] = value;
+        new (deque + getPrev(start_)) T(value);
         start_ = getPrev(start_);
         ++size_;
     }
@@ -243,7 +243,7 @@ public:
         if (capacity <= size_ + 1) {
             resize(capacity ? capacity * 2 : 2);
         }
-        deque[end_] = value;
+        new (deque + end_) T(value);
         end_ = getNext(end_);
         ++size_;
     }
