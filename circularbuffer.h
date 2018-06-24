@@ -204,7 +204,8 @@ public:
     }
 
     CircularBuffer(CircularBuffer<T> const &other) : CircularBuffer(other.capacity) {
-        memcpy(deque, other.deque, sizeof(T) * capacity);
+        //memcpy(deque, other.deque, sizeof(T) * capacity);
+        std::copy(other.deque, other.deque + capacity, deque);
         start_ = other.start_;
         end_ = other.end_;
         size_ = other.size_;
