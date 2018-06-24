@@ -174,14 +174,14 @@ private:
     T *deque;
     size_t size_, start_, end_, capacity;
 
-    size_t getPrev(size_t i) {
+    size_t getPrev(size_t i) const {
         if (i == 0) {
             return capacity - 1;
         }
         return i - 1;
     }
 
-    size_t getNext(size_t i) {
+    size_t getNext(size_t i) const {
         if (i == capacity - 1) {
             return 0;
         }
@@ -197,6 +197,12 @@ private:
     }
 
 public:
+    void print() const {
+        for (size_t i = start_; i != end_; i = getNext(i))
+            std::cout << deque[i] << " ";
+        std::cout << std::endl;
+    }
+
     explicit circular_buffer(size_t n = 0) {
         deque = (T *) (malloc(sizeof(T) * n));
         capacity = n;
@@ -204,12 +210,9 @@ public:
     }
 
     circular_buffer(circular_buffer<T> const &other) : circular_buffer(other.capacity) {
-        //std::copy(other.deque, other.deque + capacity, deque);
-        for (size_t i = start_; i != end_; i = getNext(i))
-            new (deque + i) T(other.deque[i]);
-        start_ = other.start_;
-        end_ = other.end_;
-        size_ = other.size_;
+        for (auto it = other.begin(); it != other.end(); ++it) {
+            push_back(*it);
+        }
     }
 
     circular_buffer<T> &operator=(circular_buffer<T> const &other) {
