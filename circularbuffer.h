@@ -268,19 +268,16 @@ public:
 
     iterator insert(const_iterator pos_iter, T const &value) { //basic
         size_t pos = (size_t) (pos_iter - begin());
-        if (size_ == 0) {
-            push_back(value);
-        }
         if (capacity <= size_ + 1) {
             resize(capacity ? capacity * 2 : 2);
         }
         if (pos < size_ - pos) {
-            push_front(front());
+            push_front(value);
             for (size_t i = 0; i < pos; ++i) {
                 operator[](i) = operator[](getNext(i));
             }
         } else {
-            push_back(back());
+            push_back(value);
             for (size_t i = size_ - 1; i > pos; --i) {
                 operator[](i) = operator[](getPrev(i));
             }
