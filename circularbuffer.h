@@ -205,12 +205,12 @@ public:
     }
 
     explicit circular_buffer(size_t n = 0) {
-        deque = (T *) (malloc(sizeof(T) * n));
+        deque = n ? (T *) (malloc(sizeof(T) * n)) : nullptr;
         capacity = n;
         start_ = end_ = size_ = 0;
     }
 
-    circular_buffer(circular_buffer<T> const &other) : circular_buffer(other.capacity) {
+    circular_buffer(circular_buffer<T> const &other) : circular_buffer() {
         for (auto it = other.begin(); it != other.end(); ++it) {
             push_back(*it);
         }
