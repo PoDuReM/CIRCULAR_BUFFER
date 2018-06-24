@@ -224,6 +224,9 @@ public:
     }
 
     ~CircularBuffer() {
+        for (size_t i = 0; i < capacity; ++i) {
+            (deque + i)->~T();
+        }
         free(deque);
     }
 
@@ -302,16 +305,14 @@ public:
     }
 
     T &operator[](size_t i) noexcept {
-        if (start_ + i >= capacity) {
+        if (start_ + i >= capacity)
             return deque[start_ + i - capacity];
-        }
         return deque[start_ + i];
     }
 
     T const &operator[](size_t i) const noexcept {
-        if (start_ + i >= capacity) {
+        if (start_ + i >= capacity)
             return deque[start_ + i - capacity];
-        }
         return deque[start_ + i];
     }
 
@@ -336,6 +337,9 @@ public:
     }
 
     void clear() noexcept {
+        for (size_t i = 0; i < capacity; ++i) {
+            (deque + i)->~T();
+        }
         free(deque);
         deque = (T *) malloc(0);
         size_ = capacity = start_ = end_ = 0;
