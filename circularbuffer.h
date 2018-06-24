@@ -204,14 +204,16 @@ public:
     }
 
     circular_buffer(circular_buffer<T> const &other) : circular_buffer(other.capacity) {
-        std::copy(other.deque, other.deque + capacity, deque);
+        //std::copy(other.deque, other.deque + capacity, deque);
+        for (size_t i = start_; i != end_; i = getNext(i))
+            new (deque + i) T(other.deque[i]);
         start_ = other.start_;
         end_ = other.end_;
         size_ = other.size_;
     }
 
-    circular_buffer<T> &operator=(circular_buffer<T> &other) {
-        other.swap(*this);
+    circular_buffer<T> &operator=(circular_buffer<T> const &other) {
+        circular_buffer(other).swap(*this);
         return *this;
     }
 
